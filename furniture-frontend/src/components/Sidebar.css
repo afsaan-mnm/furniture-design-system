@@ -1,0 +1,15 @@
+.sidebar {
+    width: 220px;
+    min-height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    border-right: 1px solid #ddd;
+  }
+  .nav-link {
+    color: #333;
+    font-weight: 500;
+  }
+  .nav-link:hover {
+    color: #0d6efd;
+  }
