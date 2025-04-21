@@ -3,6 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import Sidebar from "../components/Sidebar";
 import { useNavigate } from "react-router-dom";
+import bgImage from "../assets/fu-bg.svg"; 
 
 const Dashboard = () => {
   const [designs, setDesigns] = useState([]);
@@ -41,13 +42,42 @@ const Dashboard = () => {
   return (
     <div className="d-flex">
       <Sidebar />
-      <div className="flex-grow-1 p-4" style={{ marginLeft: "220px" }}>
-        <h2 className="mb-4">My Designs</h2>
+      <div
+        className="flex-grow-1 p-4"
+        style={{
+          marginLeft: "220px",
+          backgroundImage: `url(${bgImage})`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          minHeight: "100vh",
+        }}
+      >
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h2
+            className="mb-4"
+            style={{
+              color: "#000000",
+              textShadow: "0px 0px 8px rgba(0, 0, 0, 0.34)", // add shadow for readability
+            }}
+          >
+            My Designs
+          </h2>
+          <button
+            className="btn btn-success"
+            onClick={() => navigate("/create-design")}
+          >
+            + Create New Design
+          </button>
+        </div>
+
         {loading ? (
-          <p>Loading...</p>
+          <div className="text-center mt-5 text-white">
+            <div className="spinner-border text-light" role="status" />
+            <p className="mt-2">Loading...</p>
+          </div>
         ) : designs.length === 0 ? (
-          <div className="text-center mt-5">
-            <p>No designs found.</p>
+          <div className="text-center mt-5 text-white">
+            <p className="text-muted">No designs found.</p>
             <button
               className="btn btn-primary"
               onClick={() => navigate("/create-design")}
@@ -58,18 +88,26 @@ const Dashboard = () => {
         ) : (
           <div className="row">
             {designs.map((design) => (
-              <div key={design.id} className="col-md-4 mb-3">
-                <div className="card shadow-sm">
+              <div key={design.id} className="col-md-6 col-lg-4 mb-4">
+                <div className="card shadow-sm h-100 border-0 hover-shadow">
                   <div className="card-body">
-                    <h5 className="card-title">{design.name}</h5>
-                    <p className="card-text">Type: {design.type}</p>
-                    <p className="card-text">
-                      Visibility:{" "}
-                      {design.isPublic ? "Public" : "Private"}
+                    <h5 className="card-title fw-semibold">{design.name}</h5>
+                    <p className="mb-1">
+                      <strong>Type:</strong> {design.type}
                     </p>
-                    <p className="card-text">
-                      Created:{" "}
-                      {new Date(design.createdAt).toLocaleString()}
+                    <p className="mb-1">
+                      <strong>Visibility:</strong>{" "}
+                      <span className={`badge ${design.isPublic ? 'bg-success' : 'bg-secondary'}`}>
+                        {design.isPublic ? "Public" : "Private"}
+                      </span>
+                    </p>
+                    <p className="text-muted small mb-0">
+                      <strong>Created:</strong>{" "}
+                      {new Date(
+                        design.createdAt?.seconds
+                          ? design.createdAt.seconds * 1000
+                          : design.createdAt
+                      ).toLocaleString()}
                     </p>
                   </div>
                 </div>

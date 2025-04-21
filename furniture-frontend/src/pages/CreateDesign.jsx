@@ -4,29 +4,8 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-
-const objectImages = [
-  { label: "Bed 1 Blue", type: "bed1blue", image: "/src/assets/2d/Bed/bed1blue.png" },
-  { label: "Bed 1 Red", type: "bed1red", image: "/src/assets/2d/Bed/bed1red.png" },
-  { label: "Bed 1 White", type: "bed1white", image: "/src/assets/2d/Bed/bed1white.png" },
-  { label: "Bed 2 Blue", type: "bed2blue", image: "/src/assets/2d/Bed/bed2blue.png" },
-  { label: "Bed 2 Red", type: "bed2red", image: "/src/assets/2d/Bed/bed2red.png" },
-  { label: "Bed 2 White", type: "bed2white", image: "/src/assets/2d/Bed/bed2white.png" },
-  { label: "Chair 1 Blue", type: "chair1blue", image: "/src/assets/2d/Chair/chair1blue.png" },
-  { label: "Chair 1 Brown", type: "chair1brown", image: "/src/assets/2d/Chair/chair1brown.png" },
-  { label: "Chair 1 Red", type: "chair1red", image: "/src/assets/2d/Chair/chair1red.png" },
-  { label: "Chair 1 White", type: "chair1white", image: "/src/assets/2d/Chair/chair1white.png" },
-  { label: "Sofa 1 White", type: "sofa1white", image: "/src/assets/2d/Sofa/Sofa 1/sofa1white.png" },
-  { label: "Sofa 1 Blue", type: "sofa1blue", image: "/src/assets/2d/Sofa/Sofa 1/sofa1blue.png" },
-  { label: "Sofa 1 Brown", type: "sofa1brown", image: "/src/assets/2d/Sofa/Sofa 1/sofa1brown.png" },
-  { label: "Sofa 2 Blue", type: "sofa2blue", image: "/src/assets/2d/Sofa/Sofa 2/sofa2blue.png" },
-  { label: "Sofa 2 Brown", type: "sofa2brown", image: "/src/assets/2d/Sofa/Sofa 2/sofa2brown.png" },
-  { label: "Sofa 2 Gray", type: "sofa2gray", image: "/src/assets/2d/Sofa/Sofa 2/sofa2gray.png" },
-  { label: "Sofa 2 Green", type: "sofa2green", image: "/src/assets/2d/Sofa/Sofa 2/sofa2green.png" },
-  { label: "Table Blue", type: "tablebl", image: "/src/assets/2d/Table/table1bl.png" },
-  { label: "Table Brown", type: "tablebr", image: "/src/assets/2d/Table/table1br.png" },
-  { label: "Table White", type: "tablew", image: "/src/assets/2d/Table/table1w.png" }
-];
+import "../styles/CreateDesign.css"; 
+import objectImages from "../data/objectImages";  
 
 const gridSize = 20;
 
@@ -150,36 +129,36 @@ const CreateDesign = () => {
   };
 
   return (
-    <div className="container mt-4">
-      <h2>Create New Design</h2>
+    <div className="create-design-page d-flex" style={{ backgroundImage: "url('/src/assets/fu-bg.svg')" }}>
+      {/* Left Side Panel */}
+      <div className="design-sidebar p-4">
+        <button onClick={() => navigate("/dashboard")} className="btn btn-dark rounded-circle mb-3">
+          ←
+        </button>
+        <h3 className="fw-bold mb-4">Create New Design</h3>
 
-      {/* ✅ Name Input */}
-      <div className="mb-3">
-        <label>Design Name</label>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Enter design name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </div>
+        <div className="form-group mb-3">
+          <label>Design Name</label>
+          <input type="text" className="form-control" placeholder="Enter Design Name" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
 
-      {/* Room Setup */}
-      <div className="row mb-3">
-        <div className="col-md-3">
-          <label>Room Width (ft)</label>
-          <input type="number" className="form-control" value={roomWidthFt} onChange={(e) => setRoomWidthFt(parseFloat(e.target.value))} />
+        <div className="d-flex mb-3 gap-2">
+          <div>
+            <label>Room Width (ft)</label>
+            <input type="number" className="form-control" value={roomWidthFt} onChange={(e) => setRoomWidthFt(parseFloat(e.target.value))} />
+          </div>
+          <div>
+            <label>Room Height (ft)</label>
+            <input type="number" className="form-control" value={roomHeightFt} onChange={(e) => setRoomHeightFt(parseFloat(e.target.value))} />
+          </div>
         </div>
-        <div className="col-md-3">
-          <label>Room Height (ft)</label>
-          <input type="number" className="form-control" value={roomHeightFt} onChange={(e) => setRoomHeightFt(parseFloat(e.target.value))} />
-        </div>
-        <div className="col-md-3">
+
+        <div className="form-group mb-3">
           <label>Background Image</label>
           <input type="file" className="form-control" accept="image/*" onChange={handleBgChange} />
         </div>
-        <div className="col-md-3">
+
+        <div className="form-group mb-3">
           <label>Select Object</label>
           <div className="d-flex gap-2">
             <select className="form-select" value={selectedObjectType} onChange={(e) => setSelectedObjectType(e.target.value)}>
@@ -187,79 +166,77 @@ const CreateDesign = () => {
                 <option key={obj.type} value={obj.type}>{obj.label}</option>
               ))}
             </select>
-            <button className="btn btn-success" onClick={addObject}>+ Add</button>
+            <button className="btn btn-success" onClick={addObject}>+</button>
           </div>
         </div>
-      </div>
 
-      {/* Design Canvas */}
-      <div ref={previewRef} style={{
-        width: `${roomWidthFt * 20}px`,
-        height: `${roomHeightFt * 20}px`,
-        position: "relative",
-        border: "2px dashed #aaa",
-        marginBottom: "30px",
-        backgroundImage: bgPreview ? `url(${bgPreview})` : "none",
-        backgroundSize: "cover",
-        backgroundPosition: "center"
-      }}>
-        {objects.map((obj) => (
-          <img
-            key={obj.id}
-            src={obj.image}
-            onMouseDown={(e) => startDrag(e, obj.id)}
-            onDoubleClick={() => handleDelete(obj.id)}
-            style={{
-              position: "absolute",
-              left: obj.x,
-              top: obj.y,
-              width: `${obj.width}px`,
-              height: `${obj.height}px`,
-              transform: `rotateX(${obj.rotateX}deg) rotateY(${obj.rotateY}deg)`,
-              cursor: "grab"
-            }}
-            alt={obj.type}
-          />
-        ))}
-      </div>
-
-      {/* Object Editors */}
-      {objects.length > 0 && (
-        <>
-          <h5>Edit Object Properties</h5>
-          <div className="row g-3">
+        {/* Object Properties */}
+        {objects.length > 0 && (
+          <div className="mt-4">
+            <h6 className="fw-bold">Edit Object Properties</h6>
             {objects.map((obj) => (
-              <div key={obj.id} className="col-md-6">
-                <div className="card p-3 mb-3">
-                  <div className="d-flex justify-content-between align-items-center">
-                    <strong>{obj.type}</strong>
-                    <button className="btn btn-sm btn-outline-secondary" onClick={() => {
-                      const clone = { ...obj, id: Date.now(), x: obj.x + 20, y: obj.y + 20 };
-                      setObjects([...objects, clone]);
-                    }}>Clone</button>
-                  </div>
-                  <div className="row mt-2">
-                    <div className="col"><label>Width (ft)</label><input type="number" className="form-control" value={(obj.width / 20).toFixed(1)} onChange={(e) => updateObject(obj.id, "width", parseFloat(e.target.value) * 20)} /></div>
-                    <div className="col"><label>Height (ft)</label><input type="number" className="form-control" value={(obj.height / 20).toFixed(1)} onChange={(e) => updateObject(obj.id, "height", parseFloat(e.target.value) * 20)} /></div>
-                    <div className="col"><label>Rotate X (°)</label><input type="number" className="form-control" value={obj.rotateX} onChange={(e) => updateObject(obj.id, "rotateX", e.target.value)} /></div>
-                    <div className="col"><label>Rotate Y (°)</label><input type="number" className="form-control" value={obj.rotateY} onChange={(e) => updateObject(obj.id, "rotateY", e.target.value)} /></div>
-                  </div>
+              <div key={obj.id} className="border rounded p-2 mb-2 bg-white shadow-sm">
+                <div className="d-flex justify-content-between mb-2">
+                  <strong>{obj.type}</strong>
+                  <button className="btn btn-sm btn-outline-secondary" onClick={() => {
+                    const clone = { ...obj, id: Date.now(), x: obj.x + 20, y: obj.y + 20 };
+                    setObjects([...objects, clone]);
+                  }}>Clone</button>
+                </div>
+                <div className="row">
+                  <div className="col"><input type="number" className="form-control" value={(obj.width / 20).toFixed(1)} onChange={(e) => updateObject(obj.id, "width", parseFloat(e.target.value) * 20)} placeholder="Width (ft)" /></div>
+                  <div className="col"><input type="number" className="form-control" value={(obj.height / 20).toFixed(1)} onChange={(e) => updateObject(obj.id, "height", parseFloat(e.target.value) * 20)} placeholder="Height (ft)" /></div>
+                  <div className="col"><input type="number" className="form-control" value={obj.rotateX} onChange={(e) => updateObject(obj.id, "rotateX", e.target.value)} placeholder="Rotate X" /></div>
+                  <div className="col"><input type="number" className="form-control" value={obj.rotateY} onChange={(e) => updateObject(obj.id, "rotateY", e.target.value)} placeholder="Rotate Y" /></div>
                 </div>
               </div>
             ))}
           </div>
-        </>
-      )}
+        )}
 
-      {/* Public Checkbox */}
-      <div className="form-check mt-4 mb-4">
-        <input type="checkbox" className="form-check-input" id="publicCheck" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
-        <label className="form-check-label" htmlFor="publicCheck">Make this design public</label>
+        <div className="form-check mt-3 mb-3">
+          <input type="checkbox" className="form-check-input" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
+          <label className="form-check-label">Make this design public</label>
+        </div>
+
+        <button className="btn btn-primary w-100 mb-2" onClick={handleSubmit}>Save Design</button>
+        <button className="btn btn-outline-dark w-100" onClick={handleExportPDF}>Export to PDF</button>
       </div>
 
-      {/* Buttons */}
-      <button className="btn btn-primary w-100 mb-2" onClick={handleSubmit}>Save Design</button>
-      <button className="btn btn-outline-dark w-100 mb-5" onClick={handleExportPDF}>Export to PDF</button>
+      {/* Canvas */}
+      <div className="design-canvas-area d-flex align-items-center justify-content-center flex-grow-1 p-3">
+        <div
+          ref={previewRef}
+          style={{
+            width: `${roomWidthFt * gridSize}px`,
+            height: `${roomHeightFt * gridSize}px`,
+            border: "2px dashed #aaa",
+            backgroundImage: bgPreview ? `url(${bgPreview})` : "none",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            position: "relative"
+          }}
+        >
+          {objects.map((obj) => (
+            <img
+              key={obj.id}
+              src={obj.image}
+              alt={obj.type}
+              onMouseDown={(e) => startDrag(e, obj.id)}
+              onDoubleClick={() => handleDelete(obj.id)}
+              style={{
+                position: "absolute",
+                left: obj.x,
+                top: obj.y,
+                width: `${obj.width}px`,
+                height: `${obj.height}px`,
+                transform: `rotateX(${obj.rotateX}deg) rotateY(${obj.rotateY}deg)`,
+                cursor: "grab"
+              }}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

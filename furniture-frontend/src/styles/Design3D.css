@@ -1,0 +1,16 @@
+.design3d-container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .controls-panel {
+    width: 250px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-right: 1px solid #ccc;
+  }
+  
+  .canvas-area {
+    flex: 1;
+    background: #fff;
+  }

@@ -1,0 +1,17 @@
+.auth-page {
+    min-height: 100vh;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .auth-box {
+    background-color: rgba(255, 255, 255, 0.275);
+    border-radius: 15px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.223);
+  }

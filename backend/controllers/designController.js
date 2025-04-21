@@ -28,22 +28,31 @@ const allowedImages = [
   "table1bl.png", "table1br.png", "table1w.png"
 ];
 
+const allowed3DModels = [
+  "Desk.obj", "gamingchair.glb", "couch.obj"
+];
+
 // Validate object images
 const validateDesignObjects = (objects) => {
   return objects.map((obj) => {
-    const fileName = obj.image?.split("/").pop();
-    if (!allowedImages.includes(fileName)) {
-      throw new Error(`Invalid image provided: ${fileName}`);
+    const imagePath = obj.image || obj.path;
+    const fileName = imagePath?.split("/").pop();
+
+    // Only validate .png for 2D
+    if (fileName?.endsWith(".png")) {
+      if (!allowedImages.includes(fileName)) {
+        throw new Error(`Invalid image provided: ${fileName}`);
+      }
     }
+
     return obj;
   });
 };
 
-// ✅ Save Design
+// Save Design
 exports.saveDesign = async (req, res) => {
   try {
     const userId = req.user.id;
-
     const { name, type, isPublic } = req.body;
     const objects = JSON.parse(req.body.objects || "[]");
 
@@ -51,7 +60,7 @@ exports.saveDesign = async (req, res) => {
       return res.status(400).json({ msg: "Missing required fields" });
     }
 
-    // Validate object images
+    // Validate 2D images only (skip .obj/.glb)
     const validatedObjects = validateDesignObjects(objects);
 
     let backgroundPath = "";
@@ -80,7 +89,8 @@ exports.saveDesign = async (req, res) => {
   }
 };
 
-// ✅ Get designs of logged in user
+
+// Get designs of logged in user
 exports.getMyDesigns = async (req, res) => {
   try {
     const userId = String(req.user.id);
@@ -102,7 +112,7 @@ exports.getMyDesigns = async (req, res) => {
   }
 };
 
-// ✅ Get a single design by ID
+// Get a single design by ID
 exports.getDesignById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -117,7 +127,7 @@ exports.getDesignById = async (req, res) => {
   }
 };
 
-// ✅ Update design
+// Update design
 exports.updateDesign = async (req, res) => {
   const { id } = req.params;
   const { name, designData, type, isPublic } = req.body;
@@ -147,7 +157,7 @@ exports.updateDesign = async (req, res) => {
   }
 };
 
-// ✅ Delete design
+// Delete design
 exports.deleteDesign = async (req, res) => {
   const { id } = req.params;
   try {
@@ -164,7 +174,7 @@ exports.deleteDesign = async (req, res) => {
   }
 };
 
-// ✅ Get all public designs
+// Get all public designs
 exports.getPublicDesigns = async (req, res) => {
   try {
     const snapshot = await db
@@ -185,7 +195,7 @@ exports.getPublicDesigns = async (req, res) => {
   }
 };
 
-// ✅ Toggle visibility
+// Toggle visibility
 exports.toggleVisibility = async (req, res) => {
   const { id } = req.params;
   try {

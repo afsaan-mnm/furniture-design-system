@@ -1,6 +1,5 @@
-// src/components/Sidebar.jsx
 import { Link, useNavigate } from 'react-router-dom';
-import './Sidebar.css';
+import '../styles/Sidebar.css';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -12,17 +11,26 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="sidebar bg-light p-3">
+    <div className="sidebar glass-sidebar p-4">
       <h4 className="mb-4">FurnitureApp</h4>
       <ul className="nav flex-column">
         <li className="nav-item mb-2">
-          <Link to="/" className="nav-link">My Designs</Link>
+          <Link to="/" className="nav-link text-black">Home</Link>
         </li>
         <li className="nav-item mb-2">
-          <Link to="/explore" className="nav-link">Explore</Link>
+          <Link to="/dashboard" className="nav-link text-black">My Designs</Link>
         </li>
         <li className="nav-item mb-2">
-          <Link to="/settings" className="nav-link">Settings</Link>
+          <Link to="/create-design" className="nav-link text-black">Create 2D Design</Link>
+        </li>
+        <li className="nav-item mb-2">
+          <Link to="/design3d" className="nav-link text-black">Create 3D Design</Link>
+        </li>
+        <li className="nav-item mb-2">
+          <Link to="/explore" className="nav-link text-black">Explore</Link>
+        </li>
+        <li className="nav-item mb-2">
+          <Link to="/profile" className="nav-link text-black">Profile</Link>
         </li>
         <li className="nav-item mt-3">
           <button className="btn btn-danger w-100" onClick={handleLogout}>
