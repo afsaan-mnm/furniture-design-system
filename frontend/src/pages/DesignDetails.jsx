@@ -215,7 +215,6 @@ const DesignDetails = () => {
                 </div>
               )}
 
-              {/* Actions */}
               <button className="btn btn-outline-secondary me-2" onClick={exportToPDF}>
                 Export to PDF
               </button>

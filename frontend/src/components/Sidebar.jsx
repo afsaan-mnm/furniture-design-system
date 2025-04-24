@@ -27,6 +27,9 @@ const Sidebar = () => {
           <Link to="/design3d" className="nav-link text-black">Create 3D Design</Link>
         </li>
         <li className="nav-item mb-2">
+          <Link to="/customize-room" className="nav-link text-black">Customize</Link>
+        </li>
+        <li className="nav-item mb-2">
           <Link to="/explore" className="nav-link text-black">Explore</Link>
         </li>
         <li className="nav-item mb-2">

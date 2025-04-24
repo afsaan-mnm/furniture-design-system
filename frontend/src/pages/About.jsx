@@ -39,7 +39,7 @@ const About = () => {
         minHeight: '100vh',
       }}
     >
-      {/*Top Transparent Navbar */}
+
       <nav className="navbar bg-transparent position-absolute w-100 d-flex justify-content-between px-4 py-3">
         <h5 className="m-0 fw-bold brand-name text-white">FURNITUREAPP</h5>
         <div>
@@ -78,7 +78,7 @@ const About = () => {
 
         <hr className="my-5 border-light" />
 
-        {/* 🔹 Contact Form Section */}
+        {/* Contact Form Section */}
         <div className="contact-section text-center mt-5">
           <h3 className="mb-4 fw-bold">Get in Touch</h3>
           <p className="text-light mb-4">Have questions or feedback? We'd love to hear from you.</p>

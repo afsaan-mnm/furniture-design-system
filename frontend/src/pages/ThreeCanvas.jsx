@@ -23,7 +23,6 @@ const ThreeCanvas = () => {
         <directionalLight intensity={2} position={[5, 5, 5]} />
         <Environment preset="city" />
         <Suspense fallback={<Loader />}>
-          {/* Change the filename here to load other models */}
           <ObjModel url="/models/Desk.obj" scale={0.02} />
         </Suspense>
         <OrbitControls enableZoom enablePan />

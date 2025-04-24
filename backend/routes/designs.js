@@ -9,10 +9,11 @@ const {
   getPublicDesigns,
   toggleVisibility,
   getDesignById,
-  upload // handles background image upload
+  upload 
 } = require("../controllers/designController");
 
 const { authenticateUser } = require("../middleware/authMiddleware");
+const { getPrivateDesigns } = require("../controllers/designController");
 
 // Public Routes
 router.get("/explore/all", getPublicDesigns);
@@ -25,5 +26,6 @@ router.get("/my", authenticateUser, getMyDesigns);
 router.put("/:id", authenticateUser, updateDesign);
 router.put("/:id/visibility", authenticateUser, toggleVisibility);
 router.delete("/:id", authenticateUser, deleteDesign);
+router.get("/explore/private", getPrivateDesigns); 
 
 module.exports = router;

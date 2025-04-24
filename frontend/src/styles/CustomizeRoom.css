@@ -1,0 +1,56 @@
+.custom-room-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #fdf6e3;
+  }
+  
+  .left-panel {
+    width: 350px;
+    background: linear-gradient(to bottom right, #fffefc, #fef4e4);
+    padding: 2rem;
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 25px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .back-btn {
+    background: black;
+    color: white;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    border: none;
+  }
+  
+  .right-panel {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-left: 2px solid #e5e5e5;
+  }
+  
+  .wall {
+    height: 80%;
+    width: 100%;
+  }
+  
+  .floor {
+    height: 20%;
+    background-color: #e0cda9;
+    position: relative;
+  }
+  
+  .furniture {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: auto;
+  }

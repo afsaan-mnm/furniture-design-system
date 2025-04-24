@@ -29,7 +29,7 @@ const allowedImages = [
 ];
 
 const allowed3DModels = [
-  "Desk.obj", "gamingchair.glb", "couch.obj"
+  "Bookrack.glb", "gamingchair.glb", "Chair1.glb", "Chair2.glb", "coffeetable.glb", "rack2.glb"
 ];
 
 // Validate object images
@@ -211,5 +211,26 @@ exports.toggleVisibility = async (req, res) => {
   } catch (err) {
     console.error("Visibility toggle error:", err.message);
     return res.status(500).json({ msg: "Failed to toggle visibility" });
+  }
+};
+
+// Get all private designs from any user
+exports.getPrivateDesigns = async (req, res) => {
+  try {
+    const snapshot = await db
+      .collection("designs")
+      .where("isPublic", "==", false)
+      .orderBy("createdAt", "desc")
+      .get();
+
+    const designs = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return res.status(200).json({ designs });
+  } catch (err) {
+    console.error("Private designs fetch error:", err.message);
+    return res.status(500).json({ msg: "Failed to fetch private designs" });
   }
 };

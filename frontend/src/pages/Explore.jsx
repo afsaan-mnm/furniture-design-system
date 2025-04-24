@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Sidebar from "../components/Sidebar";
-import "../styles/Explore.css"; // 👈 Custom styling
+import "../styles/Explore.css";
 
 const Explore = () => {
   const navigate = useNavigate();

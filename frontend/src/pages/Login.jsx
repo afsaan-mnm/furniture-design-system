@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import '../styles/Auth.css';
-import heroBg from '../assets/heroimg.svg'; // ✅ import image properly
+import heroBg from '../assets/heroimg.svg'; 
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,7 +15,10 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5050/api/auth/login', { email, password });
+      const res = await axios.post('http://localhost:5050/api/auth/login', {
+        email,
+        password
+      });
 
       localStorage.setItem('token', res.data.token);
 
@@ -23,11 +26,18 @@ const Login = () => {
         headers: { Authorization: `Bearer ${res.data.token}` },
       });
 
+      // ✅ Save full user + userId to localStorage
       localStorage.setItem('user', JSON.stringify(profileRes.data));
+      localStorage.setItem('userId', profileRes.data._id); // ✅ Ensure userId is saved
+
       Swal.fire('Login Successful!', '', 'success');
       navigate('/dashboard');
     } catch (err) {
-      Swal.fire('Login Failed', err.response?.data?.msg || 'Server error', 'error');
+      Swal.fire(
+        'Login Failed',
+        err.response?.data?.msg || 'Server error',
+        'error'
+      );
     } finally {
       setLoading(false);
     }
@@ -65,7 +75,10 @@ const Login = () => {
             {loading ? 'Logging in...' : 'Login'}
           </button>
           <p className="mt-3 text-center text-dark">
-            New user? <Link to="/register" className="text-primary">Register here</Link>
+            New user?{" "}
+            <Link to="/register" className="text-primary">
+              Register here
+            </Link>
           </p>
         </form>
       </div>

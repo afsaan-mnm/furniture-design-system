@@ -6,6 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { FaTrash } from "react-icons/fa";
 
 // Loaders
 const ObjModel = ({ path }) => {
@@ -18,7 +19,6 @@ const GlbModel = ({ path }) => {
   return <primitive object={gltf.scene} />;
 };
 
-// Model mesh component
 const ModelMesh = ({ model, selected, onSelect, onUpdate }) => {
   const ref = useRef();
 
@@ -46,11 +46,7 @@ const ModelMesh = ({ model, selected, onSelect, onUpdate }) => {
           onSelect(model.id);
         }}
       >
-        {model.type === "obj" ? (
-          <ObjModel path={model.path} />
-        ) : (
-          <GlbModel path={model.path} />
-        )}
+        {model.type === "obj" ? <ObjModel path={model.path} /> : <GlbModel path={model.path} />}
       </mesh>
 
       {selected && (
@@ -60,16 +56,14 @@ const ModelMesh = ({ model, selected, onSelect, onUpdate }) => {
           onObjectChange={() => {
             if (!ref.current) return;
             const pos = ref.current.position.toArray();
-            const rot = [
+            pos[1] = Math.max(-1, pos[1]);
+            onUpdate(model.id, "position", pos);
+            onUpdate(model.id, "rotation", [
               ref.current.rotation.x,
               ref.current.rotation.y,
               ref.current.rotation.z,
-            ];
-            const scl = ref.current.scale.toArray();
-
-            onUpdate(model.id, "position", pos);
-            onUpdate(model.id, "rotation", rot);
-            onUpdate(model.id, "scale", scl);
+            ]);
+            onUpdate(model.id, "scale", ref.current.scale.toArray());
           }}
         />
       )}
@@ -81,17 +75,20 @@ const Design3D = () => {
   const [models, setModels] = useState([]);
   const [selectedModelId, setSelectedModelId] = useState(null);
   const [bgImage, setBgImage] = useState(null);
-  const [modelType, setModelType] = useState("Desk");
-  const [position, setPosition] = useState([0, 0, 0]);
+  const [modelType, setModelType] = useState("Chair1");
+  const [position, setPosition] = useState([0, -1, 0]);
   const [rotation, setRotation] = useState([0, 0, 0]);
-  const [scale, setScale] = useState([0.05, 0.05, 0.05]);
+  const [scale, setScale] = useState([0.5, 0.5, 0.5]);
   const [isPublic, setIsPublic] = useState(false);
   const navigate = useNavigate();
 
   const modelPaths = {
-    Desk: "/models/Desk.obj",
-    Chair: "/models/gamingchair.glb",
-    Couch: "/models/couch.obj",
+    Bookrack: "/models/Bookrack.glb",
+    Chair1: "/models/Chair1.glb",
+    Chair2: "/models/Chair2.glb",
+    Coffeetable: "/models/coffeetable.glb",
+    GamingChair: "/models/gamingchair.glb",
+    Rack2: "/models/rack2.glb",
   };
 
   const handleAddModel = () => {
@@ -104,7 +101,7 @@ const Design3D = () => {
       name: modelType,
       path,
       type,
-      position,
+      position: [0, -1, 0],
       rotation,
       scale,
     };
@@ -119,14 +116,10 @@ const Design3D = () => {
     );
   };
 
-  useEffect(() => {
-    const selected = models.find((m) => m.id === selectedModelId);
-    if (selected) {
-      setPosition(selected.position);
-      setRotation(selected.rotation);
-      setScale(selected.scale);
-    }
-  }, [selectedModelId, models]);
+  const deleteModel = (id) => {
+    setModels((prev) => prev.filter((m) => m.id !== id));
+    if (selectedModelId === id) setSelectedModelId(null);
+  };
 
   const handleBgChange = (e) => {
     const file = e.target.files[0];
@@ -155,173 +148,110 @@ const Design3D = () => {
     }
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!selectedModelId) return;
-      const step = 0.2;
-
-      setModels((prev) =>
-        prev.map((m) => {
-          if (m.id !== selectedModelId) return m;
-          const p = [...m.position];
-
-          switch (e.key) {
-            case "ArrowUp":
-              p[2] -= step;
-              break;
-            case "ArrowDown":
-              p[2] += step;
-              break;
-            case "ArrowLeft":
-              p[0] -= step;
-              break;
-            case "ArrowRight":
-              p[0] += step;
-              break;
-            default:
-              return m;
-          }
-
-          return { ...m, position: p };
-        })
-      );
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedModelId]);
-
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       {/* Sidebar */}
-      <div style={{ width: "220px", padding: "20px", background: "#f8f9fa" }}>
-        <h5>Model Controls</h5>
-
+      <div style={{ width: "260px", padding: "20px", background: "#f8f9fa", overflowY: "auto" }}>
+        <h5 className="mb-3">Model Controls</h5>
         <select
           className="form-select mb-3"
           value={modelType}
           onChange={(e) => setModelType(e.target.value)}
         >
-          <option value="Desk">Desk</option>
-          <option value="Chair">Chair</option>
-          <option value="Couch">Couch</option>
+          {Object.keys(modelPaths).map((key) => (
+            <option key={key} value={key}>{key}</option>
+          ))}
         </select>
 
-        <div className="mb-2">
-          <label>Position (X Y Z)</label>
-          {["x", "y", "z"].map((axis, i) => (
-            <input
-              key={axis}
-              type="number"
-              className="form-control mb-1"
-              value={position[i]}
-              onChange={(e) => {
-                const p = [...position];
-                p[i] = parseFloat(e.target.value);
-                setPosition(p);
-              }}
-            />
-          ))}
-        </div>
+        <label>Position (X Y Z)</label>
+        {["x", "y", "z"].map((axis, i) => (
+          <input key={axis} type="number" className="form-control mb-1"
+            value={position[i]} onChange={(e) => {
+              const p = [...position];
+              p[i] = parseFloat(e.target.value);
+              setPosition(p);
+            }} />
+        ))}
 
-        <div className="mb-2">
-          <label>Rotation (X Y Z)</label>
-          {["x", "y", "z"].map((axis, i) => (
-            <input
-              key={axis}
-              type="number"
-              className="form-control mb-1"
-              value={rotation[i]}
-              onChange={(e) => {
-                const r = [...rotation];
-                r[i] = parseFloat(e.target.value);
-                setRotation(r);
-              }}
-            />
-          ))}
-        </div>
+        <label>Rotation (X Y Z)</label>
+        {["x", "y", "z"].map((axis, i) => (
+          <input key={axis} type="number" className="form-control mb-1"
+            value={rotation[i]} onChange={(e) => {
+              const r = [...rotation];
+              r[i] = parseFloat(e.target.value);
+              setRotation(r);
+            }} />
+        ))}
 
-        <div className="mb-2">
-          <label>Scale (X Y Z)</label>
-          {["x", "y", "z"].map((axis, i) => (
-            <input
-              key={axis}
-              type="number"
-              className="form-control mb-1"
-              value={scale[i]}
-              onChange={(e) => {
-                const s = [...scale];
-                s[i] = parseFloat(e.target.value);
-                setScale(s);
-              }}
-            />
-          ))}
-        </div>
+        <label>Scale (X Y Z)</label>
+        {["x", "y", "z"].map((axis, i) => (
+          <input key={axis} type="number" className="form-control mb-1"
+            value={scale[i]} onChange={(e) => {
+              const s = [...scale];
+              s[i] = parseFloat(e.target.value);
+              setScale(s);
+            }} />
+        ))}
 
-        <button
-          className="btn btn-primary w-100 my-2"
-          onClick={handleAddModel}
-        >
+        <button className="btn btn-primary w-100 my-2" onClick={handleAddModel}>
           Add Model
         </button>
 
-        <label>Background Image</label>
-        <input
-          type="file"
-          className="form-control"
-          accept="image/*"
-          onChange={handleBgChange}
-        />
+        <label>Wall Image</label>
+        <input type="file" className="form-control mb-2" accept="image/*" onChange={handleBgChange} />
 
-        <div className="form-check mt-3">
-          <input
-            type="checkbox"
-            className="form-check-input"
-            checked={isPublic}
-            onChange={(e) => setIsPublic(e.target.checked)}
-          />
-          <label className="form-check-label">Make this design public</label>
+        <div className="form-check mb-3">
+          <input type="checkbox" className="form-check-input" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
+          <label className="form-check-label">Make design public</label>
         </div>
 
-        <button className="btn btn-dark w-100 mt-3" onClick={handleSubmit}>
-          Save Design
-        </button>
+        <button className="btn btn-dark w-100 mb-3" onClick={handleSubmit}>Save Design</button>
+
+        {models.length > 0 && (
+          <div>
+            <h6>Edit Object Properties</h6>
+            {models.map((obj) => (
+              <div key={obj.id} className="card p-2 my-2">
+                <div className="d-flex justify-content-between">
+                  <strong>{obj.name}</strong>
+                  <button className="btn btn-sm btn-outline-danger" onClick={() => deleteModel(obj.id)}>
+                    <FaTrash />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Canvas */}
-      <div style={{ flex: 1, position: "relative", background: "#000" }}>
-        {bgImage && (
-          <img
-            src={bgImage}
-            alt="bg"
-            style={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              zIndex: 0,
-            }}
-          />
-        )}
-        <Canvas
-          style={{ position: "relative", zIndex: 1 }}
-          camera={{ position: [0, 1.5, 4], fov: 50 }}
-        >
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[2, 2, 3]} />
-          <OrbitControls />
-          <Suspense fallback={null}>
-            {models.map((model) => (
-              <ModelMesh
-                key={model.id}
-                model={model}
-                selected={selectedModelId === model.id}
-                onSelect={setSelectedModelId}
-                onUpdate={updateModel}
-              />
-            ))}
-          </Suspense>
-        </Canvas>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 8.5, position: "relative", backgroundColor: "#eee" }}>
+          {bgImage && (
+            <img
+              src={bgImage}
+              alt="Wallpaper"
+              style={{ position: "absolute", width: "100%", height: "100%", objectFit: "cover", zIndex: 0 }}
+            />
+          )}
+          <Canvas style={{ position: "absolute", inset: 0 }} camera={{ position: [0, 1.5, 4], fov: 30 }}>
+            <ambientLight intensity={0.6} />
+            <directionalLight position={[2, 2, 3]} />
+            <OrbitControls />
+            <Suspense fallback={null}>
+              {models.map((model) => (
+                <ModelMesh
+                  key={model.id}
+                  model={model}
+                  selected={selectedModelId === model.id}
+                  onSelect={setSelectedModelId}
+                  onUpdate={updateModel}
+                />
+              ))}
+            </Suspense>
+          </Canvas>
+        </div>
+
+        <div style={{ flex: 1.5, background: "#e0cda9" }} />
       </div>
     </div>
   );

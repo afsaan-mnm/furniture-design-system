@@ -12,6 +12,7 @@ import Design3D from "./pages/Design3D";
 import UserProfile from "./pages/UserProfile"
 import Home from "./pages/Home"
 import About from './pages/About';
+import CustomizeRoom from './pages/CustomizeRoom';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
+        <Route path="/customize-room" element={<CustomizeRoom />} />
       </Routes>
     </div>
   );

@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve uploaded background images
+// Serve background images
 app.use("/uploads", express.static(path.join(__dirname, "assets", "Upload")));
 
 // Routes
