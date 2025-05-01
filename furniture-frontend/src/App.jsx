@@ -13,6 +13,8 @@ import UserProfile from "./pages/UserProfile"
 import Home from "./pages/Home"
 import About from './pages/About';
 import CustomizeRoom from './pages/CustomizeRoom';
+import Edit2D from "./pages/Edit2D";
+import Edit3D from "./pages/Edit3D";   
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/customize-room" element={<CustomizeRoom />} />
+        <Route path="/edit-2d/:id" element={<Edit2D />} />
+        <Route path="/edit-3d/:id" element={<Edit3D />} />
       </Routes>
     </div>
   );

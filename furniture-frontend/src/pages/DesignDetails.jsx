@@ -9,7 +9,7 @@ import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { OBJLoader } from "three-stdlib";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import "../styles/DesignDetails.css"; 
+import "../styles/DesignDetails.css";
 
 // Loaders
 const ObjModel = ({ path }) => {
@@ -76,7 +76,7 @@ const DesignDetails = () => {
       title: "Are you sure?",
       text: "This will permanently delete the design!",
       showCancelButton: true,
-      confirmButtonText: "Delete"
+      confirmButtonText: "Delete",
     });
 
     if (!confirm.isConfirmed) return;
@@ -102,6 +102,16 @@ const DesignDetails = () => {
     const imgData = canvas.toDataURL("image/png");
     pdf.addImage(imgData, "PNG", 40, 40, 500, 300);
     pdf.save(`${design.name}_preview.pdf`);
+  };
+
+  // ✅ New: Navigate to Edit Page
+  const handleEdit = () => {
+    if (!design) return;
+    if (design.type === "2D") {
+      navigate(`/edit-2d/${id}`);
+    } else if (design.type === "3D") {
+      navigate(`/edit-3d/${id}`);
+    }
   };
 
   useEffect(() => {
@@ -215,15 +225,20 @@ const DesignDetails = () => {
                 </div>
               )}
 
+              {/* Buttons */}
               <button className="btn btn-outline-secondary me-2" onClick={exportToPDF}>
                 Export to PDF
               </button>
               <button className="btn btn-outline-primary me-2" onClick={togglePublic}>
                 Make {design.isPublic ? "Private" : "Public"}
               </button>
+              <button className="btn btn-outline-success me-2" onClick={handleEdit}>
+                Edit Design
+              </button>
               <button className="btn btn-outline-danger" onClick={deleteDesign}>
                 Delete Design
               </button>
+
             </div>
           </>
         ) : (

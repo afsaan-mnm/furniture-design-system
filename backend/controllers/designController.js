@@ -29,7 +29,7 @@ const allowedImages = [
 ];
 
 const allowed3DModels = [
-  "Bookrack.glb", "gamingchair.glb", "Chair1.glb", "Chair2.glb", "coffeetable.glb", "rack2.glb"
+  "Bookrack.glb", "gamingchair.glb", "Chair1.glb", "Chair2.glb", "coffeetable.glb", "rack2.glb", "soffaaaa.glb", "sofa1.glb", "couch02.glb"
 ];
 
 // Validate object images
@@ -130,7 +130,7 @@ exports.getDesignById = async (req, res) => {
 // Update design
 exports.updateDesign = async (req, res) => {
   const { id } = req.params;
-  const { name, designData, type, isPublic } = req.body;
+  const { name, objects, designMeta, type, isPublic } = req.body;
 
   try {
     const docRef = db.collection("designs").doc(id);
@@ -139,14 +139,29 @@ exports.updateDesign = async (req, res) => {
     if (!doc.exists) return res.status(404).json({ msg: "Design not found" });
     if (doc.data().userId !== req.user.id) return res.status(403).json({ msg: "Unauthorized" });
 
+    let parsedObjects = [];
+    let parsedMeta = {};
+
+    try {
+      parsedObjects = JSON.parse(objects || "[]");
+      parsedMeta = JSON.parse(designMeta || "{}");
+    } catch (err) {
+      return res.status(400).json({ msg: "Invalid JSON in objects or designMeta" });
+    }
+
     const updateFields = {};
     if (name) updateFields.name = name;
-    if (designData) {
-      designData.objects = validateDesignObjects(designData.objects);
-      updateFields.designData = designData;
+    if (parsedObjects.length > 0) {
+      const validatedObjects = validateDesignObjects(parsedObjects);
+      updateFields.designData = {
+        ...parsedMeta,
+        objects: validatedObjects,
+      };
     }
     if (type) updateFields.type = type;
-    if (typeof isPublic === "boolean") updateFields.isPublic = isPublic;
+    if (typeof isPublic === "boolean" || isPublic === "true" || isPublic === "false") {
+      updateFields.isPublic = isPublic === "true" || isPublic === true;
+    }
 
     await docRef.update(updateFields);
 
