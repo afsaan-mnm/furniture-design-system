@@ -6,7 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaCamera, FaEdit, FaCube } from "react-icons/fa";
 import * as THREE from "three";
 import "../styles/CreateDesign.css";
 
@@ -21,7 +21,7 @@ const GlbModel = ({ path }) => {
   return <primitive object={gltf.scene} />;
 };
 
-const ModelMesh = ({ model, selected, onSelect, onUpdate }) => {
+const ModelMesh = ({ model, selected, onSelect, onUpdate, controlMode }) => {
   const ref = useRef();
 
   useEffect(() => {
@@ -46,12 +46,17 @@ const ModelMesh = ({ model, selected, onSelect, onUpdate }) => {
         onClick={(e) => {
           e.stopPropagation();
           onSelect(model.id);
+          // If clicking an object in camera mode, switch to object mode
+          if (controlMode === "camera") {
+            // We can't directly update controlMode here since it's a prop
+            // The parent component handles this via the onSelect callback
+          }
         }}
       >
         {model.type === "obj" ? <ObjModel path={model.path} /> : <GlbModel path={model.path} />}
       </mesh>
 
-      {selected && (
+      {selected && controlMode === "object" && (
         <TransformControls
           object={ref.current}
           mode="translate"
@@ -133,6 +138,7 @@ const Design3D = () => {
   const [floorColor, setFloorColor] = useState("#e0cda9");
   const [modelType, setModelType] = useState("Chair1");
   const [isPublic, setIsPublic] = useState(false);
+  const [controlMode, setControlMode] = useState("camera"); // "camera" or "object"
   const navigate = useNavigate();
 
   const modelPaths = {
@@ -168,6 +174,14 @@ const Design3D = () => {
 
   const updateModel = (id, field, value) => {
     setModels((prev) => prev.map((m) => (m.id === id ? { ...m, [field]: value } : m)));
+  };
+
+  const handleSelectModel = (id) => {
+    setSelectedModelId(id);
+    // Automatically switch to object mode when selecting an object
+    if (id !== null) {
+      setControlMode("object");
+    }
   };
 
   const deleteModel = (id) => {
@@ -310,10 +324,44 @@ const Design3D = () => {
 
       {/* Canvas */}
       <div style={{ flex: 1, position: "relative" }}>
+        {/* Control Bar */}
+        <div style={{
+          position: "absolute", 
+          top: "10px", 
+          left: "50%", 
+          transform: "translateX(-50%)", 
+          zIndex: 10, 
+          background: "rgba(255, 255, 255, 0.8)",
+          padding: "10px",
+          borderRadius: "8px",
+          boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
+          display: "flex",
+          gap: "10px",
+          alignItems: "center"
+        }}>
+          <button 
+            className={`btn ${controlMode === 'camera' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => setControlMode("camera")}
+          >
+            <FaCamera /> Camera Mode
+          </button>
+          <button 
+            className={`btn ${controlMode === 'object' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => setControlMode("object")}
+          >
+            <FaCube /> Object Mode
+          </button>
+        </div>
+
         <Canvas camera={{ position: [10, 6, 10], fov: 50 }}>
           <ambientLight intensity={0.7} />
           <directionalLight position={[5, 10, 5]} />
-          <OrbitControls enablePan={false} />
+          <OrbitControls 
+            enabled={controlMode === "camera"}
+            enablePan={controlMode === "camera"}
+            enableZoom={controlMode === "camera"}
+            enableRotate={controlMode === "camera"}
+          />
           <Suspense fallback={null}>
             <WallsAndFloor
               roomWidth={roomWidth}
@@ -327,8 +375,9 @@ const Design3D = () => {
                 key={model.id}
                 model={model}
                 selected={selectedModelId === model.id}
-                onSelect={setSelectedModelId}
+                onSelect={handleSelectModel}
                 onUpdate={updateModel}
+                controlMode={controlMode}
               />
             ))}
           </Suspense>
