@@ -56,7 +56,7 @@ const CustomizeRoom = () => {
   return (
     <div className="custom-room-container">
       <div className="left-panel">
-        <button className="back-btn" onClick={() => navigate("/")}>
+        <button className="back-btn" onClick={() => navigate("/dashboard")}>
           <i className="bi bi-arrow-left"></i>
         </button>
         <h2 className="fw-bold mb-4">Customize Your Room</h2>

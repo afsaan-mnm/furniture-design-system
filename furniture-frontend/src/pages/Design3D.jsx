@@ -247,6 +247,13 @@ const Design3D = () => {
     <div style={{ display: "flex", height: "100vh" }}>
       {/* Sidebar */}
       <div style={{ width: "320px", padding: "20px", background: "#fff", borderRight: "1px solid #ccc", overflowY: "auto" }}>
+        <button 
+          onClick={() => navigate("/dashboard")} 
+          className="btn btn-dark rounded-circle mb-3"
+          style={{ width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center" }}
+        >
+          ←
+        </button>
         <h4 className="mb-4 text-center">Room & Object Settings</h4>
 
         <div className="mb-4">
