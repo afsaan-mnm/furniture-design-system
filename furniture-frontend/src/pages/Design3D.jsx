@@ -6,9 +6,11 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { FaTrash, FaCamera, FaEdit, FaCube } from "react-icons/fa";
+import { FaTrash, FaCamera, FaCube } from "react-icons/fa";
 import * as THREE from "three";
 import "../styles/CreateDesign.css";
+import "../styles/Design3D.css";
+import objectImages from "../data/objectImages";
 
 // Loaders
 const ObjModel = ({ path }) => {
@@ -16,12 +18,21 @@ const ObjModel = ({ path }) => {
   return <primitive object={obj} />;
 };
 
-const GlbModel = ({ path }) => {
+const GlbModel = ({ path, color }) => {
   const gltf = useLoader(GLTFLoader, path);
+
+  useEffect(() => {
+    gltf.scene.traverse((child) => {
+      if (child.isMesh && color) {
+        child.material = new THREE.MeshStandardMaterial({ color });
+      }
+    });
+  }, [gltf, color]);
+
   return <primitive object={gltf.scene} />;
 };
 
-const ModelMesh = ({ model, selected, onSelect, onUpdate, controlMode }) => {
+const ModelMesh = ({ model, selected, onSelect, onUpdate, mode }) => {
   const ref = useRef();
 
   useEffect(() => {
@@ -44,26 +55,26 @@ const ModelMesh = ({ model, selected, onSelect, onUpdate, controlMode }) => {
         rotation={model.rotation}
         scale={model.scale}
         onClick={(e) => {
-          e.stopPropagation();
-          onSelect(model.id);
-          // If clicking an object in camera mode, switch to object mode
-          if (controlMode === "camera") {
-            // We can't directly update controlMode here since it's a prop
-            // The parent component handles this via the onSelect callback
+          if (mode === "object") {
+            e.stopPropagation();
+            onSelect(model.id);
           }
         }}
       >
-        {model.type === "obj" ? <ObjModel path={model.path} /> : <GlbModel path={model.path} />}
+        {model.type === "obj" ? (
+          <ObjModel path={model.path} />
+        ) : (
+          <GlbModel path={model.path} color={model.color || "#ffffff"} />
+        )}
       </mesh>
 
-      {selected && controlMode === "object" && (
+      {selected && mode === "object" && (
         <TransformControls
           object={ref.current}
           mode="translate"
           onObjectChange={() => {
             if (!ref.current) return;
-            const pos = ref.current.position.toArray();
-            onUpdate(model.id, "position", pos);
+            onUpdate(model.id, "position", ref.current.position.toArray());
             onUpdate(model.id, "rotation", [
               ref.current.rotation.x,
               ref.current.rotation.y,
@@ -86,11 +97,9 @@ const WallsAndFloor = ({ roomWidth, roomLength, roomHeight, wallColor, floorColo
     camera.getWorldDirection(camDir);
 
     if (Math.abs(camDir.x) > Math.abs(camDir.z)) {
-      if (camDir.x > 0) setHideWall("left");
-      else setHideWall("right");
+      setHideWall(camDir.x > 0 ? "left" : "right");
     } else {
-      if (camDir.z > 0) setHideWall("back");
-      else setHideWall("front");
+      setHideWall(camDir.z > 0 ? "back" : "front");
     }
   });
 
@@ -138,7 +147,7 @@ const Design3D = () => {
   const [floorColor, setFloorColor] = useState("#e0cda9");
   const [modelType, setModelType] = useState("Chair1");
   const [isPublic, setIsPublic] = useState(false);
-  const [controlMode, setControlMode] = useState("camera"); // "camera" or "object"
+  const [mode, setMode] = useState("camera"); // Changed from "object" to "camera"
   const navigate = useNavigate();
 
   const modelPaths = {
@@ -151,6 +160,19 @@ const Design3D = () => {
     Couch: "/models/couch02.glb",
     Sofa: "/models/sofa1.glb",
     Sofa2: "/models/soffaaaa.glb",
+  };
+
+  // Add mapping for model types to match with objectImages types
+  const modelToObjectImageMap = {
+    "Bookrack": "Bookrack",
+    "Chair1": "Chair1",
+    "Chair2": "Chair2",
+    "Coffeetable": "coffeetable",
+    "GamingChair": "gamingchair",
+    "Rack2": "rack2",
+    "Couch": "couch02",
+    "Sofa": "sofa1",
+    "Sofa2": "soffaaaa"
   };
 
   const handleAddModel = () => {
@@ -166,6 +188,7 @@ const Design3D = () => {
       position: [0, 0, 0],
       rotation: [0, 0, 0],
       scale: [0.5, 0.5, 0.5],
+      color: "#ffffff", // default color
     };
 
     setModels([...models, newModel]);
@@ -173,15 +196,9 @@ const Design3D = () => {
   };
 
   const updateModel = (id, field, value) => {
-    setModels((prev) => prev.map((m) => (m.id === id ? { ...m, [field]: value } : m)));
-  };
-
-  const handleSelectModel = (id) => {
-    setSelectedModelId(id);
-    // Automatically switch to object mode when selecting an object
-    if (id !== null) {
-      setControlMode("object");
-    }
+    setModels((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, [field]: value } : m))
+    );
   };
 
   const deleteModel = (id) => {
@@ -208,7 +225,9 @@ const Design3D = () => {
   const handleRotateLeft = (id) => {
     setModels((prev) =>
       prev.map((m) =>
-        m.id === id ? { ...m, rotation: [m.rotation[0], m.rotation[1] + 0.1, m.rotation[2]] } : m
+        m.id === id
+          ? { ...m, rotation: [m.rotation[0], m.rotation[1] + 0.1, m.rotation[2]] }
+          : m
       )
     );
   };
@@ -216,7 +235,9 @@ const Design3D = () => {
   const handleRotateRight = (id) => {
     setModels((prev) =>
       prev.map((m) =>
-        m.id === id ? { ...m, rotation: [m.rotation[0], m.rotation[1] - 0.1, m.rotation[2]] } : m
+        m.id === id
+          ? { ...m, rotation: [m.rotation[0], m.rotation[1] - 0.1, m.rotation[2]] }
+          : m
       )
     );
   };
@@ -243,60 +264,128 @@ const Design3D = () => {
     }
   };
 
+  // Select handler that respects the current mode
+  const handleSelectModel = (id) => {
+    if (mode === "object") {
+      setSelectedModelId(id);
+    }
+  };
+
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div className="create-design-page" style={{display: "flex", height: "100vh", background: "white"}}>
       {/* Sidebar */}
-      <div style={{ width: "320px", padding: "20px", background: "#fff", borderRight: "1px solid #ccc", overflowY: "auto" }}>
-        <button 
-          onClick={() => navigate("/dashboard")} 
+      <div
+        className="design-sidebar p-4 text-start"
+        style={{
+          width: "320px",
+          padding: "20px",
+          borderRight: "1px solid #ccc",
+          overflowY: "auto",
+        }}
+      >
+        <button
+          onClick={() => navigate("/dashboard")}
           className="btn btn-dark rounded-circle mb-3"
-          style={{ width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center" }}
         >
           ←
         </button>
-        <h4 className="mb-4 text-center">Room & Object Settings</h4>
+        <h4 className="mb-4 fw-bold">Create 3D Design</h4>
 
         <div className="mb-4">
-          <label><strong>Room Width</strong></label>
-          <input type="range" min="3" max="20" value={roomWidth} onChange={(e) => setRoomWidth(parseFloat(e.target.value))} />
-          <div className="small text-muted">{roomWidth} meters</div>
+          <label className="form-label fw-semibold">Room Width</label>
+          <input
+            type="range"
+            min="3"
+            max="20"
+            value={roomWidth}
+            onChange={(e) => setRoomWidth(parseFloat(e.target.value))}
+            className="form-range"
+          />
+          <small className="text-muted">{roomWidth} meters</small>
         </div>
 
         <div className="mb-4">
-          <label><strong>Room Length</strong></label>
-          <input type="range" min="3" max="20" value={roomLength} onChange={(e) => setRoomLength(parseFloat(e.target.value))} />
-          <div className="small text-muted">{roomLength} meters</div>
+          <label className="form-label fw-semibold">Room Length</label>
+          <input
+            type="range"
+            min="3"
+            max="20"
+            value={roomLength}
+            onChange={(e) => setRoomLength(parseFloat(e.target.value))}
+            className="form-range"
+          />
+          <small className="text-muted">{roomLength} meters</small>
         </div>
 
         <div className="mb-4">
-          <label><strong>Room Height</strong></label>
-          <input type="range" min="2" max="6" value={roomHeight} onChange={(e) => setRoomHeight(parseFloat(e.target.value))} />
-          <div className="small text-muted">{roomHeight} meters</div>
+          <label className="form-label fw-semibold">Room Height</label>
+          <input
+            type="range"
+            min="2"
+            max="6"
+            value={roomHeight}
+            onChange={(e) => setRoomHeight(parseFloat(e.target.value))}
+            className="form-range"
+          />
+          <small className="text-muted">{roomHeight} meters</small>
+        </div>
+
+        <div className="mb-4 d-flex align-items-end gap-4">
+          <div>
+            <label className="form-label fw-semibold d-block">Wall Color</label>
+            <input
+              type="color"
+              value={wallColor}
+              onChange={(e) => setWallColor(e.target.value)}
+              className="form-control form-control-color"
+              style={{ width: "40px", height: "40px" }}
+            />
+          </div>
+          <div>
+            <label className="form-label fw-semibold d-block">Floor Color</label>
+            <input
+              type="color"
+              value={floorColor}
+              onChange={(e) => setFloorColor(e.target.value)}
+              className="form-control form-control-color"
+              style={{ width: "40px", height: "40px" }}
+            />
+          </div>
         </div>
 
         <div className="mb-4">
-          <label><strong>Wall Color</strong></label>
-          <input type="color" value={wallColor} onChange={(e) => setWallColor(e.target.value)} className="form-control form-control-color" />
+          <label className="form-label fw-semibold mb-2">Select Model</label>
+          <div className="object-grid">
+            {Object.keys(modelPaths).map((key) => {
+              // Use mapping to find correct objectImage
+              const objectImageType = modelToObjectImageMap[key];
+              const matchingObject = objectImages.find(obj => obj.type === objectImageType);
+              const imagePath = matchingObject ? matchingObject.image : '';
+              
+              return (
+                <div 
+                  key={key} 
+                  className={`object-card ${modelType === key ? 'selected' : ''}`}
+                  onClick={() => setModelType(key)}
+                >
+                  <img 
+                    src={imagePath} 
+                    alt={key} 
+                    className="object-thumbnail"
+                    onError={(e) => {
+                      e.target.onerror = null; 
+                      e.target.src = '/src/assets/2d/3dto2d/placeholder.png'; 
+                    }}
+                  />
+                  <p className="object-label">{matchingObject?.label || key}</p>
+                </div>
+              );
+            })}
+          </div>
+          <button className="btn btn-primary w-100 mt-3" onClick={handleAddModel}>
+            Add Selected Model
+          </button>
         </div>
-
-        <div className="mb-4">
-          <label><strong>Floor Color</strong></label>
-          <input type="color" value={floorColor} onChange={(e) => setFloorColor(e.target.value)} className="form-control form-control-color" />
-        </div>
-
-        <select
-          className="form-select mb-4"
-          value={modelType}
-          onChange={(e) => setModelType(e.target.value)}
-        >
-          {Object.keys(modelPaths).map((key) => (
-            <option key={key} value={key}>{key}</option>
-          ))}
-        </select>
-
-        <button className="btn btn-primary w-100 mb-3" onClick={handleAddModel}>
-          Add Model
-        </button>
 
         <button className="btn btn-success w-100" onClick={handleSubmit}>
           Save Design
@@ -304,24 +393,56 @@ const Design3D = () => {
 
         {models.length > 0 && (
           <div className="mt-4">
-            <h5 className="text-center">Manage Objects</h5>
+            <h5 className="fw-semibold mb-3">Manage Objects</h5>
             {models.map((obj) => (
               <div key={obj.id} className="card p-2 my-2">
                 <div className="d-flex justify-content-between">
                   <strong>{obj.name}</strong>
-                  <button className="btn btn-sm btn-outline-danger" onClick={() => deleteModel(obj.id)}>
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={() => deleteModel(obj.id)}
+                  >
                     <FaTrash />
                   </button>
                 </div>
 
+                {obj.type === "glb" && (
+                  <input
+                    type="color"
+                    className="form-control form-control-color mt-2"
+                    value={obj.color}
+                    onChange={(e) => updateModel(obj.id, "color", e.target.value)}
+                  />
+                )}
+
                 <div className="d-flex justify-content-between mt-2">
-                  <button className="btn btn-sm btn-outline-secondary" onClick={() => handleScaleUp(obj.id)}>Scale +</button>
-                  <button className="btn btn-sm btn-outline-secondary" onClick={() => handleScaleDown(obj.id)}>Scale -</button>
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => handleScaleUp(obj.id)}
+                  >
+                    Scale +
+                  </button>
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => handleScaleDown(obj.id)}
+                  >
+                    Scale -
+                  </button>
                 </div>
 
                 <div className="d-flex justify-content-between mt-2">
-                  <button className="btn btn-sm btn-outline-secondary" onClick={() => handleRotateLeft(obj.id)}>Rotate ➡️</button>
-                  <button className="btn btn-sm btn-outline-secondary" onClick={() => handleRotateRight(obj.id)}>Rotate ⬅️</button>
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => handleRotateLeft(obj.id)}
+                  >
+                    Rotate ➡️
+                  </button>
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => handleRotateRight(obj.id)}
+                  >
+                    Rotate ⬅️
+                  </button>
                 </div>
               </div>
             ))}
@@ -331,43 +452,42 @@ const Design3D = () => {
 
       {/* Canvas */}
       <div style={{ flex: 1, position: "relative" }}>
-        {/* Control Bar */}
-        <div style={{
-          position: "absolute", 
-          top: "10px", 
-          left: "50%", 
-          transform: "translateX(-50%)", 
-          zIndex: 10, 
-          background: "rgba(255, 255, 255, 0.8)",
-          padding: "10px",
-          borderRadius: "8px",
-          boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
-          display: "flex",
-          gap: "10px",
-          alignItems: "center"
-        }}>
+        {/* Mode Switch Buttons */}
+        <div 
+          style={{ 
+            position: "absolute", 
+            top: "20px", 
+            left: "50%", 
+            transform: "translateX(-50%)", 
+            zIndex: 10,
+            backgroundColor: "rgba(255,255,255,0.7)",
+            padding: "8px",
+            borderRadius: "8px",
+            display: "flex",
+            gap: "10px"
+          }}
+        >
           <button 
-            className={`btn ${controlMode === 'camera' ? 'btn-primary' : 'btn-outline-primary'}`}
-            onClick={() => setControlMode("camera")}
+            className={`btn ${mode === "object" ? "btn-primary" : "btn-outline-primary"}`}
+            onClick={() => setMode("object")}
           >
-            <FaCamera /> Camera Mode
+            <FaCube className="me-1" /> Object Mode
           </button>
           <button 
-            className={`btn ${controlMode === 'object' ? 'btn-primary' : 'btn-outline-primary'}`}
-            onClick={() => setControlMode("object")}
+            className={`btn ${mode === "camera" ? "btn-primary" : "btn-outline-primary"}`}
+            onClick={() => setMode("camera")}
           >
-            <FaCube /> Object Mode
+            <FaCamera className="me-1" /> Camera Mode
           </button>
         </div>
-
+        
         <Canvas camera={{ position: [10, 6, 10], fov: 50 }}>
           <ambientLight intensity={0.7} />
           <directionalLight position={[5, 10, 5]} />
           <OrbitControls 
-            enabled={controlMode === "camera"}
-            enablePan={controlMode === "camera"}
-            enableZoom={controlMode === "camera"}
-            enableRotate={controlMode === "camera"}
+            enablePan={mode === "camera"}
+            enableRotate={mode === "camera"} 
+            enableZoom={mode === "camera"}
           />
           <Suspense fallback={null}>
             <WallsAndFloor
@@ -384,7 +504,7 @@ const Design3D = () => {
                 selected={selectedModelId === model.id}
                 onSelect={handleSelectModel}
                 onUpdate={updateModel}
-                controlMode={controlMode}
+                mode={mode}
               />
             ))}
           </Suspense>

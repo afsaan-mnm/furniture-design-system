@@ -4,8 +4,8 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import "../styles/CreateDesign.css"; 
-import objectImages from "../data/objectImages";  
+import "../styles/CreateDesign.css";
+import objectImages from "../data/objectImages";
 
 const gridSize = 20;
 
@@ -19,6 +19,7 @@ const CreateDesign = () => {
   const [roomHeightFt, setRoomHeightFt] = useState(20);
   const [bgImageFile, setBgImageFile] = useState(null);
   const [bgPreview, setBgPreview] = useState(null);
+  const [wallColor, setWallColor] = useState("#ffffff");
 
   const previewRef = useRef(null);
   const dragRef = useRef({ id: null, offsetX: 0, offsetY: 0 });
@@ -113,6 +114,7 @@ const CreateDesign = () => {
     formData.append("type", type);
     formData.append("isPublic", isPublic);
     formData.append("objects", JSON.stringify(objects));
+    formData.append("wallColor", wallColor);
     if (bgImageFile) {
       formData.append("bgImage", bgImageFile);
     }
@@ -129,13 +131,11 @@ const CreateDesign = () => {
   };
 
   return (
-    <div className="create-design-page d-flex" style={{ backgroundImage: "url('/src/assets/fu-bg.svg')" }}>
-      {/* Left Side Panel */}
+    <div className="create-design-page d-flex" style={{background: "white" }}>
+      {/* Left Sidebar */}
       <div className="design-sidebar p-4">
-        <button onClick={() => navigate("/dashboard")} className="btn btn-dark rounded-circle mb-3">
-          ←
-        </button>
-        <h3 className="fw-bold mb-4">Create New Design</h3>
+        <button onClick={() => navigate("/dashboard")} className="btn btn-dark rounded-circle mb-3">←</button>
+        <h3 className="fw-bold mb-4">Create 2D Design</h3>
 
         <div className="form-group mb-3">
           <label>Design Name</label>
@@ -154,40 +154,83 @@ const CreateDesign = () => {
         </div>
 
         <div className="form-group mb-3">
+          <label>Wall Color</label>
+          <input type="color" className="form-control form-control-color" value={wallColor} onChange={(e) => setWallColor(e.target.value)} />
+        </div>
+
+        <div className="form-group mb-3">
           <label>Background Image</label>
           <input type="file" className="form-control" accept="image/*" onChange={handleBgChange} />
         </div>
 
-        <div className="form-group mb-3">
-          <label>Select Object</label>
-          <div className="d-flex gap-2">
-            <select className="form-select" value={selectedObjectType} onChange={(e) => setSelectedObjectType(e.target.value)}>
-              {objectImages.map((obj) => (
-                <option key={obj.type} value={obj.type}>{obj.label}</option>
-              ))}
-            </select>
-            <button className="btn btn-success" onClick={addObject}>+</button>
+        <div className="form-group mb-4">
+          <label className="mb-2">Select Object</label>
+          <div className="object-grid">
+            {objectImages.map((obj) => (
+              <div 
+                key={obj.type} 
+                className={`object-card ${selectedObjectType === obj.type ? 'selected' : ''}`}
+                onClick={() => setSelectedObjectType(obj.type)}
+              >
+                <img src={obj.image} alt={obj.label} className="object-thumbnail" />
+                <p className="object-label">{obj.label}</p>
+              </div>
+            ))}
           </div>
+          <button 
+            className="btn btn-success w-100 mt-3" 
+            onClick={addObject} 
+            disabled={!selectedObjectType}
+          >
+            Add Selected Object
+          </button>
         </div>
 
-        {/* Object Properties */}
         {objects.length > 0 && (
           <div className="mt-4">
             <h6 className="fw-bold">Edit Object Properties</h6>
             {objects.map((obj) => (
-              <div key={obj.id} className="border rounded p-2 mb-2 bg-white shadow-sm">
-                <div className="d-flex justify-content-between mb-2">
+              <div key={obj.id} className="border rounded p-2 mb-3 bg-white shadow-sm">
+                <div className="d-flex justify-content-between align-items-center mb-2">
                   <strong>{obj.type}</strong>
-                  <button className="btn btn-sm btn-outline-secondary" onClick={() => {
-                    const clone = { ...obj, id: Date.now(), x: obj.x + 20, y: obj.y + 20 };
-                    setObjects([...objects, clone]);
-                  }}>Clone</button>
+                  <div className="d-flex gap-2">
+                    <button className="btn btn-sm btn-outline-secondary" onClick={() => {
+                      const clone = { ...obj, id: Date.now(), x: obj.x + 20, y: obj.y + 20 };
+                      setObjects([...objects, clone]);
+                    }}>Clone</button>
+                    <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(obj.id)}>
+                      Delete
+                    </button>
+                  </div>
                 </div>
-                <div className="row">
-                  <div className="col"><input type="number" className="form-control" value={(obj.width / 20).toFixed(1)} onChange={(e) => updateObject(obj.id, "width", parseFloat(e.target.value) * 20)} placeholder="Width (ft)" /></div>
-                  <div className="col"><input type="number" className="form-control" value={(obj.height / 20).toFixed(1)} onChange={(e) => updateObject(obj.id, "height", parseFloat(e.target.value) * 20)} placeholder="Height (ft)" /></div>
-                  <div className="col"><input type="number" className="form-control" value={obj.rotateX} onChange={(e) => updateObject(obj.id, "rotateX", e.target.value)} placeholder="Rotate X" /></div>
-                  <div className="col"><input type="number" className="form-control" value={obj.rotateY} onChange={(e) => updateObject(obj.id, "rotateY", e.target.value)} placeholder="Rotate Y" /></div>
+          
+                <div className="row mb-2">
+                  <div className="col">
+                    <label className="form-label small">Rotate X</label>
+                    <input type="number" className="form-control" value={obj.rotateX} onChange={(e) => updateObject(obj.id, "rotateX", e.target.value)} />
+                  </div>
+                  <div className="col">
+                    <label className="form-label small">Rotate Y</label>
+                    <input type="number" className="form-control" value={obj.rotateY} onChange={(e) => updateObject(obj.id, "rotateY", e.target.value)} />
+                  </div>
+                </div>
+          
+                <div className="d-flex justify-content-between">
+                  <button
+                    className="btn btn-sm btn-outline-dark"
+                    onClick={() => updateObject(obj.id, "width", obj.width + 10) || updateObject(obj.id, "height", obj.height + 10)}
+                  >
+                    Scale +
+                  </button>
+                  <button
+                    className="btn btn-sm btn-outline-dark"
+                    onClick={() =>
+                      updateObject(obj.id, "width", Math.max(10, obj.width - 10)) ||
+                      updateObject(obj.id, "height", Math.max(10, obj.height - 10))
+                    }
+                  >
+                    Scale -
+                  </button>
                 </div>
               </div>
             ))}
@@ -203,7 +246,7 @@ const CreateDesign = () => {
         <button className="btn btn-outline-dark w-100" onClick={handleExportPDF}>Export to PDF</button>
       </div>
 
-      {/* Canvas */}
+      {/* Canvas Area */}
       <div className="design-canvas-area d-flex align-items-center justify-content-center flex-grow-1 p-3">
         <div
           ref={previewRef}
@@ -211,6 +254,7 @@ const CreateDesign = () => {
             width: `${roomWidthFt * gridSize}px`,
             height: `${roomHeightFt * gridSize}px`,
             border: "2px dashed #aaa",
+            backgroundColor: wallColor,
             backgroundImage: bgPreview ? `url(${bgPreview})` : "none",
             backgroundSize: "cover",
             backgroundPosition: "center",

@@ -38,9 +38,7 @@ const Dashboard = () => {
         className="flex-grow-1 p-4"
         style={{
           marginLeft: "220px",
-          backgroundImage: `url(${bgImage})`,
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
+          backgroundColor: "white",
           minHeight: "100vh",
         }}
       >

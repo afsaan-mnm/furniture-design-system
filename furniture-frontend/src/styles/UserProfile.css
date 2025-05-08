@@ -1,8 +1,5 @@
 .user-profile-page {
-    background-image: url('../assets/fu-bg.svg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
+    background-color: white;
     min-height: 100vh;
     color: black;
   }

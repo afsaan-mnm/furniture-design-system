@@ -92,7 +92,7 @@ const About = () => {
                 value={form.name}
                 onChange={handleChange}
                 className="form-control"
-                placeholder="John Doe"
+                placeholder="Mohammed Afsaan"
                 required
               />
             </div>
@@ -104,7 +104,7 @@ const About = () => {
                 value={form.email}
                 onChange={handleChange}
                 className="form-control"
-                placeholder="john@example.com"
+                placeholder="afsaan@example.com"
                 required
               />
             </div>

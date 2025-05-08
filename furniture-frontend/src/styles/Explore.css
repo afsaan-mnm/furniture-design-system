@@ -1,15 +1,13 @@
 .explore-page {
-    background-image: url('../assets/fu-bg.svg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
+    background-color: white;
     min-height: 100vh;
-  }
-  
-  .glass-card {
+}
+
+.glass-card {
     background: rgba(255, 255, 255, 0.502);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.331);
     color: black;
-  }
+}
+

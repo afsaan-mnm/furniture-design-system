@@ -6,7 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { FaTrash, FaCamera, FaCube } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 import * as THREE from "three";
 import "../styles/CreateDesign.css";
 
@@ -21,7 +21,7 @@ const GlbModel = ({ path }) => {
   return <primitive object={gltf.scene} />;
 };
 
-const ModelMesh = ({ model, selected, onSelect, onUpdate, controlMode }) => {
+const ModelMesh = ({ model, selected, onSelect, onUpdate }) => {
   const ref = useRef();
 
   useEffect(() => {
@@ -51,7 +51,7 @@ const ModelMesh = ({ model, selected, onSelect, onUpdate, controlMode }) => {
         {model.type === "obj" ? <ObjModel path={model.path} /> : <GlbModel path={model.path} />}
       </mesh>
 
-      {selected && controlMode === "object" && (
+      {selected && (
         <TransformControls
           object={ref.current}
           mode="translate"
@@ -130,7 +130,6 @@ const Edit3D = () => {
   const [wallColor, setWallColor] = useState("#f5f5f5");
   const [floorColor, setFloorColor] = useState("#e0cda9");
   const [isPublic, setIsPublic] = useState(false);
-  const [controlMode, setControlMode] = useState("camera"); // "camera" or "object"
 
   useEffect(() => {
     fetchDesign();
@@ -247,44 +246,10 @@ const Edit3D = () => {
 
       {/* Canvas */}
       <div style={{ flex: 1, position: "relative" }}>
-        {/* Control Bar */}
-        <div style={{
-          position: "absolute", 
-          top: "10px", 
-          left: "50%", 
-          transform: "translateX(-50%)", 
-          zIndex: 10, 
-          background: "rgba(255, 255, 255, 0.8)",
-          padding: "10px",
-          borderRadius: "8px",
-          boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
-          display: "flex",
-          gap: "10px",
-          alignItems: "center"
-        }}>
-          <button 
-            className={`btn ${controlMode === 'camera' ? 'btn-primary' : 'btn-outline-primary'}`}
-            onClick={() => setControlMode("camera")}
-          >
-            <FaCamera /> Camera Mode
-          </button>
-          <button 
-            className={`btn ${controlMode === 'object' ? 'btn-primary' : 'btn-outline-primary'}`}
-            onClick={() => setControlMode("object")}
-          >
-            <FaCube /> Object Mode
-          </button>
-        </div>
-        
         <Canvas camera={{ position: [10, 6, 10], fov: 50 }}>
           <ambientLight intensity={0.7} />
           <directionalLight position={[5, 10, 5]} />
-          <OrbitControls 
-            enabled={controlMode === "camera"}
-            enablePan={controlMode === "camera"}
-            enableZoom={controlMode === "camera"}
-            enableRotate={controlMode === "camera"}
-          />
+          <OrbitControls enablePan={false} />
           <Suspense fallback={null}>
             <WallsAndFloor
               roomWidth={roomWidth}
@@ -300,7 +265,6 @@ const Edit3D = () => {
                 selected={selectedModelId === model.id}
                 onSelect={setSelectedModelId}
                 onUpdate={updateModel}
-                controlMode={controlMode}
               />
             ))}
           </Suspense>
