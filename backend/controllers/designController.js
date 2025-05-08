@@ -25,7 +25,8 @@ const allowedImages = [
   "chair1blue.png", "chair1brown.png", "chair1red.png", "chair1white.png",
   "sofa1white.png", "sofa1blue.png", "sofa1brown.png",
   "sofa2blue.png", "sofa2brown.png", "sofa2gray.png", "sofa2green.png",
-  "table1bl.png", "table1br.png", "table1w.png"
+  "table1bl.png", "table1br.png", "table1w.png",
+  "Bookrack.png", "Chair1.png", "Chair2.png", "coffeetable.png", "couch02.png", "gamingchair.png", "rack2.png", "sofa1.png", "soffaaaa.png"
 ];
 
 const allowed3DModels = [
