@@ -1,0 +1,43 @@
+.about-page {
+    background: #fdfdfd;
+  }
+  
+  .contact-section {
+    background: #f8f9fa;
+    padding: 60px 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  }
+
+  .navbar {
+    z-index: 999;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+.navbar.fixed-top {
+    background: rgba(0, 0, 0, 0.949); /* semi-transparent black */
+    z-index: 1000;
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .navbar .btn {
+    font-weight: 500;
+  }
+  
+  .navbar .brand-name {
+    color: #ffffff;
+    letter-spacing: 0.5px;
+  }
+  
+  .navbar .btn-outline-light {
+    color: white;
+    border-color: white;
+  }
+  
+  .navbar .btn-outline-light:hover {
+    background-color: white;
+    color: black;
+  }

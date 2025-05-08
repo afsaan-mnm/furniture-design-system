@@ -1,0 +1,24 @@
+{
+  "name": "furniture-design-system",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "firebase-admin": "^13.2.0",
+    "html2canvas": "^1.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "jspdf": "^3.0.1",
+    "multer": "^1.4.5-lts.2"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run start\" \"npm run server\"",
+    "start": "cd furniture-frontend && npm run dev",
+    "server": "cd backend && node server.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

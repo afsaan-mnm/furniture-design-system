@@ -1,0 +1,64 @@
+.create-design-page {
+    min-height: 100vh;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+  }
+  
+  .design-sidebar {
+    width: 320px;
+    background: rgba(255, 255, 255, 0.354);
+    border-right: 1px solid #ddd;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    overflow-y: auto;
+  }
+  
+  .design-canvas-area {
+    background-color: #ffffff29;
+  }
+
+.object-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.object-card {
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.object-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+
+.object-card.selected {
+  border-color: #198754;
+  background-color: rgba(25, 135, 84, 0.1);
+}
+
+.object-thumbnail {
+  width: 100%;
+  height: 60px;
+  object-fit: contain;
+  margin-bottom: 5px;
+}
+
+.object-label {
+  font-size: 0.8rem;
+  margin-bottom: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

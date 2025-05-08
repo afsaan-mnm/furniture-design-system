@@ -1,0 +1,31 @@
+.product-detail-page {
+    background: #f8f9fa;
+    min-height: 100vh;
+  }
+  
+  .product-image {
+    max-height: 320px;
+    object-fit: contain;
+    border: 1px solid #ddd;
+    background: #fff;
+    padding: 15px;
+  }
+  
+  .product-not-found {
+    padding: 100px 0;
+  }
+  
+  .btn-outline-info {
+    color: #0dcaf0;
+    border-color: #0dcaf0;
+  }
+  
+  .btn-outline-info:hover {
+    background-color: #0dcaf0;
+    color: white;
+  }
+  
+  .btn-outline-success:hover {
+    background-color: #198754;
+    color: white;
+  }
