@@ -148,6 +148,7 @@ const Design3D = () => {
   const [modelType, setModelType] = useState("Chair1");
   const [isPublic, setIsPublic] = useState(false);
   const [mode, setMode] = useState("camera"); // Changed from "object" to "camera"
+  const [name, setName] = useState(""); // Added design name state
   const navigate = useNavigate();
 
   const modelPaths = {
@@ -246,9 +247,10 @@ const Design3D = () => {
     const token = localStorage.getItem("token");
     if (!token) return Swal.fire("Please login.");
     if (models.length === 0) return Swal.fire("Add at least one model.");
+    if (!name) return Swal.fire("Please enter a design name.");
 
     const formData = new FormData();
-    formData.append("name", "My 3D Design");
+    formData.append("name", name);
     formData.append("type", "3D");
     formData.append("isPublic", isPublic);
     formData.append("objects", JSON.stringify(models));
@@ -290,6 +292,18 @@ const Design3D = () => {
           ←
         </button>
         <h4 className="mb-4 fw-bold">Create 3D Design</h4>
+
+        {/* Add design name input field */}
+        <div className="mb-4">
+          <label className="form-label fw-semibold">Design Name</label>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Enter Design Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
 
         <div className="mb-4">
           <label className="form-label fw-semibold">Room Width</label>

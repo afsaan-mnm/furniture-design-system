@@ -140,12 +140,6 @@ const DesignDetails = () => {
                 </span>
               ))}
             </p>
-            <p>
-              Created At:{" "}
-              {design.createdAt?.seconds
-                ? new Date(design.createdAt.seconds * 1000).toLocaleString()
-                : "N/A"}
-            </p>
 
             <div className="my-4">
               <h5>Preview</h5>
@@ -226,9 +220,6 @@ const DesignDetails = () => {
               )}
 
               {/* Buttons */}
-              <button className="btn btn-outline-secondary me-2" onClick={exportToPDF}>
-                Export to PDF
-              </button>
               <button className="btn btn-outline-primary me-2" onClick={togglePublic}>
                 Make {design.isPublic ? "Private" : "Public"}
               </button>

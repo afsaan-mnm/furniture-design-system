@@ -44,9 +44,6 @@ const Dashboard = () => {
       >
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="mb-4 fw-bold text-dark text-shadow">All Private Designs</h2>
-          <button className="btn btn-success" onClick={() => navigate("/create-design")}>
-            + Create New Design
-          </button>
         </div>
 
         {loading ? (
@@ -57,9 +54,6 @@ const Dashboard = () => {
         ) : designs.length === 0 ? (
           <div className="text-center mt-5 text-dark">
             <p>No private designs found.</p>
-            <button className="btn btn-primary" onClick={() => navigate("/create-design")}>
-              + Create New Design
-            </button>
           </div>
         ) : (
           <div className="row">
