@@ -3,7 +3,6 @@ import '../styles/Home.css';
 import heroimg from '../assets/heroimg.svg';
 import can1 from '../assets/can1.svg';
 import can2 from '../assets/can2.svg';
-import can3 from '../assets/can3.svg';
 import img3 from '../assets/img3.svg';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -50,7 +49,7 @@ const Home = () => {
       <section className="container py-5">
         <h2 className="text-center mb-4">What You Can Do</h2>
         <div className="row justify-content-center">
-          <div className="col-md-4 mb-4">
+          <div className="col-md-5 mb-4 mx-3">
             <div className="card shadow-sm">
               <img src={can1} className="card-img-top" alt="Design Freely" />
               <div className="card-body text-center">
@@ -59,21 +58,12 @@ const Home = () => {
               </div>
             </div>
           </div>
-          <div className="col-md-4 mb-4">
+          <div className="col-md-5 mb-4 mx-3">
             <div className="card shadow-sm">
               <img src={can2} className="card-img-top" alt="Preview in 3D" />
               <div className="card-body text-center">
                 <h5 className="card-title">Preview in 3D</h5>
                 <p className="card-text">Rotate, scale, and view furniture in an immersive 3D space.</p>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4 mb-4">
-            <div className="card shadow-sm">
-              <img src={can3} className="card-img-top" alt="Share or Export" />
-              <div className="card-body text-center">
-                <h5 className="card-title">Share or Export</h5>
-                <p className="card-text">Download your design as PDF or make it public to inspire others.</p>
               </div>
             </div>
           </div>
@@ -85,10 +75,9 @@ const Home = () => {
         <div className="container text-center">
           <h3 className="mb-4">How It Works</h3>
           <div className="row text-muted">
-            <div className="col-md-3"><strong>1. Login</strong><br />Create a free account and get started.</div>
-            <div className="col-md-3"><strong>2. Choose Mode</strong><br />Start in 2D or 3D depending on your preference.</div>
-            <div className="col-md-3"><strong>3. Add Furniture</strong><br />Use our catalog of 2D & 3D furniture assets.</div>
-            <div className="col-md-3"><strong>4. Save & Share</strong><br />Save to dashboard, download PDF, or share publicly.</div>
+            <div className="col-md-4"><strong>1. Login</strong><br />Create a free account and get started.</div>
+            <div className="col-md-4"><strong>2. Choose Mode</strong><br />Start in 2D or 3D depending on your preference.</div>
+            <div className="col-md-4"><strong>3. Add Furniture</strong><br />Use our catalog of 2D & 3D furniture assets.</div>
           </div>
         </div>
       </section>

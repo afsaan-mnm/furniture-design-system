@@ -6,7 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { FaTrash, FaCamera, FaCube } from "react-icons/fa";
+import { FaCamera, FaCube } from "react-icons/fa";
 import * as THREE from "three";
 import "../styles/CreateDesign.css";
 import "../styles/Design3D.css";
@@ -439,7 +439,7 @@ const Edit3D = () => {
                     className="btn btn-sm btn-outline-danger"
                     onClick={() => deleteModel(obj.id)}
                   >
-                    <FaTrash />
+                    Delete
                   </button>
                 </div>
 

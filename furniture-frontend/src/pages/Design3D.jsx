@@ -416,7 +416,7 @@ const Design3D = () => {
                     className="btn btn-sm btn-outline-danger"
                     onClick={() => deleteModel(obj.id)}
                   >
-                    <FaTrash />
+                    Delete
                   </button>
                 </div>
 

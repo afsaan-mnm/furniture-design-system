@@ -22,6 +22,7 @@ const CreateDesign = () => {
   const [wallColor, setWallColor] = useState("#ffffff");
 
   const previewRef = useRef(null);
+  const fileInputRef = useRef(null);
   const dragRef = useRef({ id: null, offsetX: 0, offsetY: 0 });
   const navigate = useNavigate();
 
@@ -51,6 +52,22 @@ const CreateDesign = () => {
     setObjects(prev =>
       prev.map(obj =>
         obj.id === id ? { ...obj, [field]: parseFloat(value) || 0 } : obj
+      )
+    );
+  };
+
+  const handleRotateRight = (id) => {
+    setObjects(prev =>
+      prev.map(obj =>
+        obj.id === id ? { ...obj, rotateY: obj.rotateY + 10 } : obj
+      )
+    );
+  };
+
+  const handleRotateLeft = (id) => {
+    setObjects(prev =>
+      prev.map(obj =>
+        obj.id === id ? { ...obj, rotateY: obj.rotateY - 10 } : obj
       )
     );
   };
@@ -90,6 +107,14 @@ const CreateDesign = () => {
     if (file) {
       setBgImageFile(file);
       setBgPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleRemoveBackground = () => {
+    setBgImageFile(null);
+    setBgPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -159,8 +184,30 @@ const CreateDesign = () => {
         </div>
 
         <div className="form-group mb-3">
-          <label>Background Image</label>
-          <input type="file" className="form-control" accept="image/*" onChange={handleBgChange} />
+          <label>Background Image (Optional)</label>
+          <div className="d-flex gap-2">
+            <input 
+              type="file" 
+              className="form-control" 
+              accept="image/*" 
+              onChange={handleBgChange} 
+              ref={fileInputRef}
+            />
+            {bgPreview && (
+              <button 
+                className="btn btn-outline-danger" 
+                onClick={handleRemoveBackground}
+                title="Remove background image"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          {bgPreview && (
+            <div className="mt-2">
+              <img src={bgPreview} alt="Background preview" style={{ height: '60px', objectFit: 'cover' }} />
+            </div>
+          )}
         </div>
 
         <div className="form-group mb-4">
@@ -188,31 +235,31 @@ const CreateDesign = () => {
 
         {objects.length > 0 && (
           <div className="mt-4">
-            <h6 className="fw-bold">Edit Object Properties</h6>
+            <h6 className="fw-bold">Manage Objects</h6>
             {objects.map((obj) => (
               <div key={obj.id} className="border rounded p-2 mb-3 bg-white shadow-sm">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <strong>{obj.type}</strong>
                   <div className="d-flex gap-2">
-                    <button className="btn btn-sm btn-outline-secondary" onClick={() => {
-                      const clone = { ...obj, id: Date.now(), x: obj.x + 20, y: obj.y + 20 };
-                      setObjects([...objects, clone]);
-                    }}>Clone</button>
                     <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(obj.id)}>
                       Delete
                     </button>
                   </div>
                 </div>
           
-                <div className="row mb-2">
-                  <div className="col">
-                    <label className="form-label small">Rotate X</label>
-                    <input type="number" className="form-control" value={obj.rotateX} onChange={(e) => updateObject(obj.id, "rotateX", e.target.value)} />
-                  </div>
-                  <div className="col">
-                    <label className="form-label small">Rotate Y</label>
-                    <input type="number" className="form-control" value={obj.rotateY} onChange={(e) => updateObject(obj.id, "rotateY", e.target.value)} />
-                  </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => handleRotateLeft(obj.id)}
+                  >
+                    Rotate ⬅️
+                  </button>
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => handleRotateRight(obj.id)}
+                  >
+                    Rotate ➡️
+                  </button>
                 </div>
           
                 <div className="d-flex justify-content-between">
@@ -237,13 +284,7 @@ const CreateDesign = () => {
           </div>
         )}
 
-        <div className="form-check mt-3 mb-3">
-          <input type="checkbox" className="form-check-input" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
-          <label className="form-check-label">Make this design public</label>
-        </div>
-
         <button className="btn btn-primary w-100 mb-2" onClick={handleSubmit}>Save Design</button>
-        <button className="btn btn-outline-dark w-100" onClick={handleExportPDF}>Export to PDF</button>
       </div>
 
       {/* Canvas Area */}
