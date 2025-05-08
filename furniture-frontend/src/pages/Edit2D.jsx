@@ -23,6 +23,7 @@ const Edit2D = () => {
 
   const previewRef = useRef(null);
   const dragRef = useRef({ id: null, offsetX: 0, offsetY: 0 });
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetchDesign();
@@ -101,6 +102,15 @@ const Edit2D = () => {
     window.removeEventListener("mouseup", stopDrag);
   };
 
+  const handleRemoveBackground = () => {
+    setBgImageFile(null);
+    setBgPreview(null);
+    setExistingBgImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleBgChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -109,7 +119,22 @@ const Edit2D = () => {
     }
   };
 
-  // ✅ Overwrite existing design
+  const handleRotateLeft = (id) => {
+    setObjects(prev =>
+      prev.map(obj =>
+        obj.id === id ? { ...obj, rotateY: obj.rotateY - 15 } : obj
+      )
+    );
+  };
+
+  const handleRotateRight = (id) => {
+    setObjects(prev =>
+      prev.map(obj =>
+        obj.id === id ? { ...obj, rotateY: obj.rotateY + 15 } : obj
+      )
+    );
+  };
+
   const handleUpdate = async () => {
     const token = localStorage.getItem("token");
     if (!token) return Swal.fire("Please login.");
@@ -124,6 +149,7 @@ const Edit2D = () => {
     formData.append("isPublic", isPublic);
     formData.append("objects", JSON.stringify(objects));
     formData.append("wallColor", wallColor);
+    formData.append("removeBg", !bgImageFile && !existingBgImage ? "true" : "false");
     if (bgImageFile) {
       formData.append("bgImage", bgImageFile);
     }
@@ -139,7 +165,6 @@ const Edit2D = () => {
     }
   };
 
-  // ✅ Save as a new design
   const handleSaveAsNew = async () => {
     const token = localStorage.getItem("token");
     if (!token) return Swal.fire("Please login.");
@@ -154,6 +179,7 @@ const Edit2D = () => {
     formData.append("isPublic", isPublic);
     formData.append("objects", JSON.stringify(objects));
     formData.append("wallColor", wallColor);
+    formData.append("removeBg", !bgImageFile && !existingBgImage ? "true" : "false");
     if (bgImageFile) {
       formData.append("bgImage", bgImageFile);
     }
@@ -199,7 +225,33 @@ const Edit2D = () => {
 
         <div className="form-group mb-3">
           <label>Background Image (Optional)</label>
-          <input type="file" className="form-control" accept="image/*" onChange={handleBgChange} />
+          <div className="d-flex gap-2">
+            <input 
+              type="file" 
+              className="form-control" 
+              accept="image/*" 
+              onChange={handleBgChange} 
+              ref={fileInputRef}
+            />
+            {(bgPreview || existingBgImage) && (
+              <button 
+                className="btn btn-outline-danger" 
+                onClick={handleRemoveBackground}
+                title="Remove background image"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          {(bgPreview || existingBgImage) && (
+            <div className="mt-2">
+              <img 
+                src={bgPreview || (existingBgImage ? `http://localhost:5050/uploads/${existingBgImage}` : null)} 
+                alt="Background preview" 
+                style={{ height: '60px', objectFit: 'cover' }} 
+              />
+            </div>
+          )}
         </div>
 
         <div className="form-group mb-4">
@@ -238,16 +290,20 @@ const Edit2D = () => {
                     </button>
                   </div>
                 </div>
-          
-                <div className="row mb-2">
-                  <div className="col">
-                    <label className="form-label small">Rotate X</label>
-                    <input type="number" className="form-control" value={obj.rotateX} onChange={(e) => updateObject(obj.id, "rotateX", e.target.value)} />
-                  </div>
-                  <div className="col">
-                    <label className="form-label small">Rotate Y</label>
-                    <input type="number" className="form-control" value={obj.rotateY} onChange={(e) => updateObject(obj.id, "rotateY", e.target.value)} />
-                  </div>
+                
+                <div className="d-flex justify-content-between mb-2">
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => handleRotateLeft(obj.id)}
+                  >
+                    Rotate ⬅️
+                  </button>
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => handleRotateRight(obj.id)}
+                  >
+                    Rotate ➡️
+                  </button>
                 </div>
           
                 <div className="d-flex justify-content-between">
